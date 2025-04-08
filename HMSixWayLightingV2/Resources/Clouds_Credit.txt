@@ -1,0 +1,1 @@
+This texture sheet is sourced from the article https://discussions.unity.com/t/vfx-graph-introducing-six-way-lighting-for-smoke-dust-and-clouds and is provided by Unity Technologies.

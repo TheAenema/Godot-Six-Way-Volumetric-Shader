@@ -1,0 +1,155 @@
+[gd_scene load_steps=19 format=3 uid="uid://cm3j3hlf0eofc"]
+
+[ext_resource type="Shader" uid="uid://b0oq3lp8l5ib7" path="res://HMSixWayLightingV2/HMSixWayLighting.gdshader" id="1_if7q4"]
+[ext_resource type="Texture2D" uid="uid://csf370hws75ix" path="res://HMSixWayLightingV2/Resources/Explosion_Emission_Shade.png" id="2_38krw"]
+[ext_resource type="Texture2D" uid="uid://cy4m752ju6ie4" path="res://HMSixWayLightingV2/Resources/Explosion_Flipbook_Normal.jpg" id="3_k25il"]
+[ext_resource type="Texture2D" uid="uid://iphaxosnynmu" path="res://HMSixWayLightingV2/Resources/Explosion_Flipbook_LBF.jpg" id="4_lujk8"]
+[ext_resource type="Texture2D" uid="uid://fb086jw0m7ku" path="res://HMSixWayLightingV2/Resources/Explosion_Flipbook_RTB.jpg" id="5_dypk3"]
+[ext_resource type="Texture2D" uid="uid://l1jhva6cntpi" path="res://HMSixWayLightingV2/Resources/Explosion_Flipbook_TEA.jpg" id="6_sclgj"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sfi2d"]
+
+[sub_resource type="Sky" id="Sky_0ay47"]
+sky_material = SubResource("PanoramaSkyMaterial_sfi2d")
+process_mode = 1
+radiance_size = 4
+
+[sub_resource type="Environment" id="Environment_14x2t"]
+background_mode = 1
+sky = SubResource("Sky_0ay47")
+ambient_light_sky_contribution = 0.3
+tonemap_mode = 4
+tonemap_white = 16.0
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 1.0
+glow_strength = 0.69
+glow_bloom = 1.0
+glow_blend_mode = 1
+glow_hdr_threshold = 0.0
+glow_hdr_scale = 0.15
+adjustment_enabled = true
+adjustment_saturation = 1.12
+
+[sub_resource type="QuadMesh" id="QuadMesh_m7gn6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pgpos"]
+render_priority = 0
+shader = ExtResource("1_if7q4")
+shader_parameter/absorption = Color(0.336608, 0.336608, 0.336608, 1)
+shader_parameter/thickness = 10.0
+shader_parameter/density = 1.0
+shader_parameter/scattering = 1.0
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.1
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 5.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 40.0
+shader_parameter/flipbook_dimensions = Vector2(12, 12)
+shader_parameter/six_way_map_RTB = ExtResource("5_dypk3")
+shader_parameter/six_way_map_LBF = ExtResource("4_lujk8")
+shader_parameter/six_way_map_TEA = ExtResource("6_sclgj")
+shader_parameter/normal_map = ExtResource("3_k25il")
+shader_parameter/emission_ramp = ExtResource("2_38krw")
+
+[sub_resource type="BoxMesh" id="BoxMesh_h2c67"]
+size = Vector3(0.1, 0.64, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2c67"]
+disable_ambient_light = true
+disable_fog = true
+albedo_color = Color(0, 0, 0, 1)
+emission_enabled = true
+emission = Color(0, 0.588235, 0.396078, 1)
+emission_energy_multiplier = 15.23
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxylp"]
+disable_ambient_light = true
+disable_fog = true
+albedo_color = Color(0, 0, 0, 1)
+emission_enabled = true
+emission = Color(0.898039, 0, 0.443137, 1)
+emission_energy_multiplier = 15.23
+
+[sub_resource type="BoxMesh" id="BoxMesh_lxylp"]
+size = Vector3(0.07, 3.935, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_omcvq"]
+disable_ambient_light = true
+disable_fog = true
+albedo_color = Color(0, 0, 0, 1)
+emission_enabled = true
+emission = Color(0.431373, 0.458824, 0.788235, 1)
+emission_energy_multiplier = 15.23
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6hjs7"]
+albedo_color = Color(0.0728426, 0.0728426, 0.0728426, 1)
+metallic = 0.12
+metallic_specular = 0.0
+roughness = 0.6
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_6hjs7"]
+material = SubResource("StandardMaterial3D_6hjs7")
+size = Vector2(30, 30)
+
+[node name="World" type="Node3D"]
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14, 8.152)
+environment = SubResource("Environment_14x2t")
+current = true
+fov = 39.4
+
+[node name="Explosion" type="MeshInstance3D" parent="."]
+transform = Transform3D(8.515, 0, 0, 0, 8.515, 0, 0, 0, 8.515, -0.00565594, 1.19209e-07, -0.000480175)
+mesh = SubResource("QuadMesh_m7gn6")
+surface_material_override/0 = SubResource("ShaderMaterial_pgpos")
+
+[node name="Light Green" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.026, -0.016, 0.981)
+light_color = Color(3.85046e-07, 0.588152, 0.397182, 1)
+light_energy = 9.324
+shadow_enabled = true
+
+[node name="Light Shape" type="MeshInstance3D" parent="Light Green"]
+mesh = SubResource("BoxMesh_h2c67")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_h2c67")
+
+[node name="Light Red" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.285, -0.016, 0.519)
+light_color = Color(0.898039, 0, 0.443137, 1)
+light_energy = 0.362
+shadow_enabled = true
+shadow_blur = 4.515
+omni_attenuation = -1.415
+
+[node name="Light Shape" type="MeshInstance3D" parent="Light Red"]
+mesh = SubResource("BoxMesh_h2c67")
+surface_material_override/0 = SubResource("StandardMaterial3D_lxylp")
+
+[node name="Light Blue" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09, 0.119, -4.286)
+light_color = Color(0.431883, 0.459036, 0.786784, 1)
+light_energy = 6.936
+shadow_enabled = true
+shadow_blur = 4.515
+omni_attenuation = -1.415
+
+[node name="Light Shape H" type="MeshInstance3D" parent="Light Blue"]
+mesh = SubResource("BoxMesh_lxylp")
+surface_material_override/0 = SubResource("StandardMaterial3D_omcvq")
+
+[node name="Light Shape V" type="MeshInstance3D" parent="Light Blue"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("BoxMesh_lxylp")
+surface_material_override/0 = SubResource("StandardMaterial3D_omcvq")
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.83055, 0)
+mesh = SubResource("PlaneMesh_6hjs7")

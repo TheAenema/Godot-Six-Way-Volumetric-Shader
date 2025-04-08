@@ -1,0 +1,290 @@
+[gd_scene load_steps=19 format=3 uid="uid://d0sbqukjbim15"]
+
+[ext_resource type="Shader" uid="uid://b0oq3lp8l5ib7" path="res://HMSixWayLightingV2/HMSixWayLighting.gdshader" id="1_qljva"]
+[ext_resource type="Texture2D" uid="uid://ki01qem5qf3n" path="res://HMSixWayLightingV2/Resources/Clouds_LBF.jpg" id="6_cw5w0"]
+[ext_resource type="Texture2D" uid="uid://dur764kqn3ipo" path="res://HMSixWayLightingV2/Resources/Clouds_RTB.jpg" id="7_wdu0y"]
+[ext_resource type="Texture2D" uid="uid://dme1j7qs3ir8f" path="res://HMSixWayLightingV2/Resources/Clouds_TEA.jpg" id="8_nd360"]
+
+[sub_resource type="GDScript" id="GDScript_hakb3"]
+script/source = "extends HSlider
+
+@export var sun_path: NodePath
+var sun: Node3D
+
+func _on_slider_value_changed(angle: float) -> void:
+	sun.rotation_degrees = Vector3(-50.0, angle, 0)
+
+func _ready() -> void:
+	sun = get_node(sun_path) as Node3D
+	self.connect(\"value_changed\", Callable(self, \"_on_slider_value_changed\"))
+"
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_r5hsl"]
+sun_disk_scale = 10.0
+
+[sub_resource type="Sky" id="Sky_0ay47"]
+sky_material = SubResource("PhysicalSkyMaterial_r5hsl")
+radiance_size = 4
+
+[sub_resource type="Environment" id="Environment_14x2t"]
+background_mode = 2
+sky = SubResource("Sky_0ay47")
+tonemap_mode = 3
+tonemap_exposure = 2.0
+tonemap_white = 5.0
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.58
+glow_strength = 0.69
+glow_bloom = 1.0
+glow_blend_mode = 1
+glow_hdr_threshold = 0.0
+glow_hdr_scale = 0.15
+fog_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.019
+volumetric_fog_albedo = Color(0.585062, 0.585062, 0.585062, 1)
+adjustment_enabled = true
+adjustment_brightness = 1.05
+adjustment_contrast = 2.0
+adjustment_saturation = 2.0
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_hakb3"]
+auto_exposure_enabled = true
+auto_exposure_scale = 0.1
+
+[sub_resource type="QuadMesh" id="QuadMesh_7o7m3"]
+size = Vector2(20, 10)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d2u4t"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = 0.15
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.37
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.25
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 1.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 5.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hakb3"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = 0.15
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.25
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 1.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 0.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cnie0"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = 0.15
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.25
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 1.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 3.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7o7m3"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = 0.15
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.25
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 1.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 4.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="QuadMesh" id="QuadMesh_bs7h4"]
+size = Vector2(20, 10)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bs7h4"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = 0.15
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.25
+shader_parameter/normal_blend = 0.25
+shader_parameter/ao_power = 0.5
+shader_parameter/emission_power = 1.0
+shader_parameter/billboard = true
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 6.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aurrv"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = -0.246
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.0
+shader_parameter/normal_blend = 0.215
+shader_parameter/ao_power = 0.0
+shader_parameter/emission_power = 0.0
+shader_parameter/billboard = false
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 5.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cw5w0"]
+render_priority = 0
+shader = ExtResource("1_qljva")
+shader_parameter/absorption = Color(1, 1, 1, 1)
+shader_parameter/thickness = -0.246
+shader_parameter/density = 1.0
+shader_parameter/scattering = 0.165
+shader_parameter/normal_power = 0.0
+shader_parameter/normal_blend = 0.215
+shader_parameter/ao_power = 0.0
+shader_parameter/emission_power = 0.0
+shader_parameter/billboard = false
+shader_parameter/animate = true
+shader_parameter/animate_speed = 0.0
+shader_parameter/animate_offset = 3.0
+shader_parameter/flipbook_dimensions = Vector2(2, 4)
+shader_parameter/six_way_map_RTB = ExtResource("7_wdu0y")
+shader_parameter/six_way_map_LBF = ExtResource("6_cw5w0")
+shader_parameter/six_way_map_TEA = ExtResource("8_nd360")
+
+[node name="World" type="Node3D"]
+
+[node name="GUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Sun-Angle-Label" type="Label" parent="GUI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 27.0
+offset_top = -75.0
+offset_right = 188.0
+offset_bottom = -47.0
+grow_vertical = 0
+text = "Sun Angle"
+
+[node name="Sun-Angle-Slider" type="HSlider" parent="GUI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -51.0
+offset_right = 250.0
+offset_bottom = -14.0
+grow_vertical = 0
+max_value = 360.0
+value = 45.0
+script = SubResource("GDScript_hakb3")
+sun_path = NodePath("../../Sun")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.956305, -0.292372, 0, 0.292372, 0.956305, 0, -2.52, 14.916)
+environment = SubResource("Environment_14x2t")
+attributes = SubResource("CameraAttributesPractical_hakb3")
+current = true
+fov = 34.6
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.34202, 0.719847, 0.604023, 5.61943e-08, -0.642788, 0.766044, 0.939692, -0.262003, -0.219846, 0, 0, 0)
+light_color = Color(0.861916, 0.688482, 0.588199, 1)
+light_angular_distance = 3.0
+shadow_enabled = true
+
+[node name="Cloud-01" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 5.575, 0)
+mesh = SubResource("QuadMesh_7o7m3")
+surface_material_override/0 = SubResource("ShaderMaterial_d2u4t")
+
+[node name="Cloud-02" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.925, 0, 0, 0, 0.925, 0, 0, 0, 0.925, 5.749, -1.805, -3.03)
+mesh = SubResource("QuadMesh_7o7m3")
+surface_material_override/0 = SubResource("ShaderMaterial_hakb3")
+
+[node name="Cloud-03" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, -3.5613, 4.28471, -3.03)
+mesh = SubResource("QuadMesh_7o7m3")
+surface_material_override/0 = SubResource("ShaderMaterial_cnie0")
+
+[node name="Cloud-04" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.949408, 0, 0, 0, 0.949408, 0, 0, 0, 0.72, 6.786, 0.947, 1.347)
+mesh = SubResource("QuadMesh_7o7m3")
+surface_material_override/0 = SubResource("ShaderMaterial_7o7m3")
+
+[node name="Cloud-06" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.949408, 0, 0, 0, 0.949408, 0, 0, 0, 0.72, -5.13527, 9.03217, -8.66125)
+mesh = SubResource("QuadMesh_7o7m3")
+surface_material_override/0 = SubResource("ShaderMaterial_7o7m3")
+
+[node name="Cloud-05" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, -3.23825, -0.376775, -1.16457)
+mesh = SubResource("QuadMesh_bs7h4")
+surface_material_override/0 = SubResource("ShaderMaterial_bs7h4")
+
+[node name="Cloud-07" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.29, 0, 0, 0, 3.29, 0, 0, 0, 3.29, -0.278, 9.128, -14.6)
+mesh = SubResource("QuadMesh_bs7h4")
+surface_material_override/0 = SubResource("ShaderMaterial_aurrv")
+
+[node name="Cloud-08" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.29, 0, 0, 0, 3.29, 0, 0, 0, 3.29, 3.017, 24.448, -20.36)
+mesh = SubResource("QuadMesh_bs7h4")
+surface_material_override/0 = SubResource("ShaderMaterial_cw5w0")
