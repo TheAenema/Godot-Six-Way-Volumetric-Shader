@@ -10,7 +10,7 @@ It's developed with artistic flexibility and lightweight performance in mind, It
 
 ## 🧠 How It Works
 
-Unlike traditional single-source lighting, this shader breaks down the environment lighting into **six principal directions**, combining their influence dynamically in the fragment shader:
+Unlike traditional single-source lighting, this shader breaks down the environment lighting into **six principal directions**, combining their influence dynamically in the shader:
 
 - +X / -X
 - +Y / -Y
