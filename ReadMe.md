@@ -51,8 +51,8 @@ These maps are blended based on the light direction at runtime, simulating how l
 
 ## 📜 License
 
-**Creative Commons (CC BY-NC-ND 4.0)**  
-You can use it freely for personal and educational projects. Attribution is required, commercial use is not allowed and derivatives must not be redistributed.
+**Creative Commons Attribution 4.0 (CC BY 4.0)**  
+You are free to use this shader for any purpose, including personal, educational, and commercial projects. Attribution is required, and you must give appropriate credit to the original creator. You may adapt and redistribute the shader freely under the same license terms.
 
 ---
 

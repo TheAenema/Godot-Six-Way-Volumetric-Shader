@@ -1,7 +1,7 @@
 
 /*   Six-Way Volumetric Lighting for Godot v2.0     */
 /*            Developed by Hamid.Memar              */
-/*   License : Creative Commons (CC) BY-NC-ND 4.0   */
+/*      License : Creative Commons (CC) BY 4.0      */
 
 // Shader Configuration
 shader_type spatial;
