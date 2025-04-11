@@ -1,5 +1,5 @@
 
-/*   Six-Way Volumetric Lighting for Godot v2.0     */
+/*   Six-Way Volumetric Lighting for Godot v2.1     */
 /*            Developed by Hamid.Memar              */
 /*      License : Creative Commons (CC) BY 4.0      */
 
@@ -21,25 +21,15 @@ uniform float normal_power : hint_range(0, 1) = 0.25;
 uniform float normal_blend : hint_range(0.0, 1.0) = 0.25;
 uniform float ao_power : hint_range(0.0, 1.0) = 0.5;
 uniform float emission_power : hint_range(0.0, 10.0) = 1.0;
-uniform bool billboard = false;
+uniform int billboard : hint_enum("Disabled", "Y-Axis", "Full") = 0;
+uniform bool billboard_keep_scale = true;
 uniform bool animate = false;
 uniform float animate_speed = 30.0;
 uniform float animate_offset = 0.0;
 uniform vec2 flipbook_dimensions = vec2(2, 2);
 
-// Utilities
-mat4 look_at(vec3 from, vec3 to, vec3 up) {
-    vec3 forward = normalize(to - from);
-    vec3 right = normalize(cross(up, forward));
-    vec3 new_up = cross(forward, right);
-
-    mat4 result = mat4(1.0);
-    result[0].xyz = right;
-    result[1].xyz = new_up;
-    result[2].xyz = forward;
-    return result;
-}
-vec2 flipbook(vec2 uv, vec2 size, float progress)
+// Animator
+vec2 animateUV(vec2 uv, vec2 size, float progress)
 {
 	progress = floor(mod(progress, size.x * size.y));
 	vec2 frame_size = vec2(1.0) / size;
@@ -52,20 +42,37 @@ vec2 flipbook(vec2 uv, vec2 size, float progress)
 // Vertex Render
 void vertex()
 {
-    if (billboard)
+	
+	// Y-Axis Billboard Only
+    if (billboard == 1)
 	{
-        vec3 camera_pos = (INV_VIEW_MATRIX)[3].xyz;
-        vec3 object_pos = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-        vec3 to_camera = normalize(camera_pos - object_pos);
-        vec3 up = vec3(0.0, 1.0, 0.0);
-        vec3 right = normalize(cross(up, to_camera));
-        vec3 new_up = cross(to_camera, right);
-        mat3 rotation_matrix = mat3(right, new_up, to_camera);
-        NORMAL = rotation_matrix * NORMAL;
-        TANGENT = rotation_matrix * TANGENT;
-        BINORMAL = rotation_matrix * BINORMAL;
-        VERTEX = (rotation_matrix * VERTEX);
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(
+			vec4(normalize(cross(vec3(0.0, 1.0, 0.0), MAIN_CAM_INV_VIEW_MATRIX[2].xyz)), 0.0),
+			vec4(0.0, 1.0, 0.0, 0.0),
+			vec4(normalize(cross(MAIN_CAM_INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0),
+			MODEL_MATRIX[3]);
+    }	
+	
+	// Full Billboard
+    if (billboard == 2)
+	{
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(
+			MAIN_CAM_INV_VIEW_MATRIX[0],
+			MAIN_CAM_INV_VIEW_MATRIX[1],
+			MAIN_CAM_INV_VIEW_MATRIX[2],
+			MODEL_MATRIX[3]);
     }
+	
+	// Keep Size When Billboarding
+	if (billboard != 0 && billboard_keep_scale)
+	{
+		MODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(
+			vec4(length(MODEL_MATRIX[0].xyz), 0.0, 0.0, 0.0),
+			vec4(0.0, length(MODEL_MATRIX[1].xyz), 0.0, 0.0),
+			vec4(0.0, 0.0, length(MODEL_MATRIX[2].xyz), 0.0),
+			vec4(0.0, 0.0, 0.0, 1.0));
+		MODELVIEW_NORMAL_MATRIX = mat3(MODELVIEW_MATRIX);
+	}
 }
 
 // Pixel Render
@@ -73,7 +80,7 @@ void fragment()
 {
 	// Calculate UV
 	vec2 uv = vec2(1.0);
-	if (animate) uv = flipbook(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+	if (animate) uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
 	else uv = UV;
 
 	// Calculate Pixel Rendering
@@ -85,7 +92,7 @@ void fragment()
 	NORMAL_MAP = mix(vec3(.5,.5,1.0), normals, normal_power);
 
 	// Create Emission
-    float emission_strength = texture(six_way_map_TEA, uv).g;  // Mono emission channel (black = no emission, white = max emission)
+    float emission_strength = texture(six_way_map_TEA, uv).g;
     vec3 emission_color = texture(emission_ramp, vec2(emission_strength, 0.0)).rgb * emission_strength * emission_power;
     EMISSION = emission_color;
 }
@@ -95,7 +102,7 @@ void light()
 {
 	// Calculate UV
 	vec2 uv = vec2(1.0);
-	if (animate) uv = flipbook(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+	if (animate) uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
 	else uv = UV;
 
 	// Get Light Direction
@@ -137,7 +144,7 @@ void light()
     vec3 blended_color = mix(directional_color, directional_color * normal_strength, normal_blend);
 
     // Apply Fake Scattering Effect
-    vec3 final_color = blended_color * (1.0 - (scattering / 5.0)) + (scattering / 5.0) * vec3(1.0, 1.0, 1.0); // Soft light scattering
+    vec3 final_color = blended_color * (1.0 - (scattering / 5.0)) + (scattering / 5.0) * vec3(1.0, 1.0, 1.0);
 
     // Compute Absorption/Transmittance using a Simplified Beer's Law
     vec3 transmittance = exp(-absorption * thickness);
