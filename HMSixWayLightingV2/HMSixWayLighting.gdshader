@@ -139,12 +139,12 @@ void light()
     // Apply Fake Scattering Effect
     vec3 final_color = blended_color * (1.0 - (scattering / 5.0)) + (scattering / 5.0) * vec3(1.0, 1.0, 1.0); // Soft light scattering
 
-	// Compute Absorption/Transmittance using a Simplified Beer's Law
-	vec3 transmittance = exp(-absorption * thickness);
+    // Compute Absorption/Transmittance using a Simplified Beer's Law
+    vec3 transmittance = exp(-absorption * thickness);
 
-	// Modulate Light by Transmittance
-	final_color = final_color * transmittance;
+    // Modulate Light by Transmittance
+    final_color = final_color * transmittance;
 
-	// Final Result
+    // Final Result
     DIFFUSE_LIGHT += (final_color * LIGHT_COLOR * ATTENUATION / 4.4);
 }
