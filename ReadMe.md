@@ -34,7 +34,7 @@ These maps are blended based on the light direction at runtime, simulating how l
 - 🌈 **Emission Ramp** support for colorful fire, glow, or mystical effects
 - ☁️ Adjustable **Absorption**, **Scattering**, and **Density**
 - 🧪 Experimental **Ambient Occlusion** and **Thickness** control
-- 🖼️ **Billboarding Support** for smoke quads
+- 🖼️ Y-Axis Only and Full **Billboarding Support**
 - 🎞️ Support for **Flip Book Animation** and **Sprite Sheet**
 - ☀️ Support for **SDFGI**, **Volumetric Fog**, **Fog** and **IBL**
 
