@@ -1,5 +1,5 @@
 
-/*   Six-Way Volumetric Lighting for Godot v2.1     */
+/*   Six-Way Volumetric Lighting for Godot v2.2     */
 /*            Developed by Hamid.Memar              */
 /*      License : Creative Commons (CC) BY 4.0      */
 
@@ -37,6 +37,22 @@ vec2 animateUV(vec2 uv, vec2 size, float progress)
 	frame.x += (mod(progress, size.x)) * frame_size.x;
 	frame.y += floor(progress / size.x) * frame_size.y;
 	return frame;
+}
+vec3 shiftColor(vec3 color, float shiftAngle)
+{
+	float Y = dot(color, vec3(0.299, 0.587, 0.114));
+	float I = dot(color, vec3(0.596, -0.274, -0.322));
+	float Q = dot(color, vec3(0.211, -0.523, 0.312));
+	float rad = radians(shiftAngle);
+	float cosA = cos(rad);
+	float sinA = sin(rad);
+	float newI = I * cosA - Q * sinA;
+	float newQ = I * sinA + Q * cosA;
+	return vec3(
+		Y + 0.956 * newI + 0.621 * newQ,
+		Y - 0.272 * newI - 0.647 * newQ,
+		Y - 1.106 * newI + 1.703 * newQ
+    	);
 }
 
 // Vertex Render
@@ -94,7 +110,7 @@ void fragment()
 	// Create Emission
 	float emission_strength = texture(six_way_map_TEA, uv).g;
 	vec3 emission_color = texture(emission_ramp, vec2(emission_strength, 0.0)).rgb * emission_strength * emission_power;
-	EMISSION = emission_color;
+	EMISSION = shiftColor(emission_color, emission_color_shift);
 }
 
 // Light Render
