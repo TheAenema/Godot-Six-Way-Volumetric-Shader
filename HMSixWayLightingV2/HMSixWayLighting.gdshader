@@ -21,22 +21,23 @@ uniform float normal_power : hint_range(0, 1) = 0.25;
 uniform float normal_blend : hint_range(0.0, 1.0) = 0.25;
 uniform float ao_power : hint_range(0.0, 1.0) = 0.5;
 uniform float emission_power : hint_range(0.0, 10.0) = 1.0;
+uniform float emission_color_shift : hint_range(0.0, 360.0) = 1.0;
 uniform int billboard_mode : hint_enum("Disabled", "Y-Axis", "Full") = 0;
 uniform bool billboard_keep_scale = true;
 uniform bool animate = false;
 uniform float animate_speed = 30.0;
 uniform float animate_offset = 0.0;
-uniform vec2 flipbook_dimensions = vec2(2, 2);
+uniform ivec2 flipbook_dimensions = ivec2(2, 2);
 
 // Animator
 vec2 animateUV(vec2 uv, vec2 size, float progress)
 {
-	progress = floor(mod(progress, size.x * size.y));
-	vec2 frame_size = vec2(1.0) / size;
-	vec2 frame = fract(uv) * frame_size;
-	frame.x += (mod(progress, size.x)) * frame_size.x;
-	frame.y += floor(progress / size.x) * frame_size.y;
-	return frame;
+        progress = floor(mod(progress, float(size.x * size.y)));
+        vec2 frame_size = vec2(1.0) / vec2(size);
+        vec2 frame = fract(uv) * frame_size;
+        frame.x += (mod(progress, float(size.x))) * frame_size.x;
+        frame.y += float(int(progress) / size.x) * frame_size.y;
+        return frame;
 }
 vec3 shiftColor(vec3 color, float shiftAngle)
 {
