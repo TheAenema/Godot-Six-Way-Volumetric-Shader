@@ -1,5 +1,5 @@
 
-/*   Six-Way Volumetric Lighting for Godot v2.2     */
+/*   Six-Way Volumetric Lighting for Godot v2.3     */
 /*            Developed by Hamid.Memar              */
 /*      License : Creative Commons (CC) BY 4.0      */
 
@@ -30,7 +30,7 @@ uniform float animate_offset = 0.0;
 uniform ivec2 flipbook_dimensions = ivec2(2, 2);
 
 // Animator
-vec2 animateUV(vec2 uv, vec2 size, float progress)
+vec2 animateUV(vec2 uv, ivec2 size, float progress)
 {
         progress = floor(mod(progress, float(size.x * size.y)));
         vec2 frame_size = vec2(1.0) / vec2(size);
