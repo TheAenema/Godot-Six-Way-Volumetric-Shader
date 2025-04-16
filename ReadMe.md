@@ -87,6 +87,8 @@ https://github.com/user-attachments/assets/f9bef5fc-f4d6-4439-87ca-5ea2da359478
 - Baked directional lighting textures can be created in Blender, Houdini, EmberGen or other volumetric renderers.
 - The shader works great for stylized clouds, fire, fantasy fog, explosions, and magical FX.
 - This shader is optimized for performance, making it ideal for use on mobile devices.
+- For 3ds Max and V-Ray users I provided a full scene setup for automatic baking [here.](https://github.com/TheAenema/Godot-Six-Way-Volumetric-Shader/tree/main/HMBakeSetups/3dsMaxVRayGPU)
+- A Python script is provided for automatic processing of PNG sequences into flipbooks [here.](https://github.com/TheAenema/Godot-Six-Way-Volumetric-Shader/blob/main/HMBakeSetups/Flipbooker.py)
 
 ---
 
