@@ -1,16 +1,18 @@
 
-/*   Six-Way Volumetric Lighting for Godot v2.3     */
+/*   Six-Way Volumetric Lighting for Godot v2.5     */
 /*            Developed by Hamid.Memar              */
 /*      License : Creative Commons (CC) BY 4.0      */
 
 // Shader Configuration
 shader_type spatial;
-render_mode blend_mix, cull_disabled, depth_draw_always;
+render_mode blend_mix, cull_disabled, depth_draw_opaque;
 
 // Shader Parameters
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
 uniform sampler2D six_way_map_RTB : source_color;
 uniform sampler2D six_way_map_LBF : source_color;
 uniform sampler2D six_way_map_TEA : source_color;
+uniform sampler2D motion_vector_map : source_color; // For Future Implementation
 uniform sampler2D normal_map : hint_normal;
 uniform sampler2D emission_ramp : source_color;
 uniform vec3 absorption : source_color = vec3(1.0, 1.0, 1.0);
@@ -28,17 +30,10 @@ uniform bool animate = false;
 uniform float animate_speed = 30.0;
 uniform float animate_offset = 0.0;
 uniform ivec2 flipbook_dimensions = ivec2(2, 2);
+uniform float depth_fade_distance : hint_range(0.0, 1.0) = 0.05;
+uniform float depth_fade_strength : hint_range(0.0, 1.0) = 0.0;
 
-// Animator
-vec2 animateUV(vec2 uv, ivec2 size, float progress)
-{
-        progress = floor(mod(progress, float(size.x * size.y)));
-        vec2 frame_size = vec2(1.0) / vec2(size);
-        vec2 frame = fract(uv) * frame_size;
-        frame.x += (mod(progress, float(size.x))) * frame_size.x;
-        frame.y += float(int(progress) / size.x) * frame_size.y;
-        return frame;
-}
+// Helpers
 vec3 shiftColor(vec3 color, float shiftAngle)
 {
 	float Y = dot(color, vec3(0.299, 0.587, 0.114));
@@ -56,6 +51,17 @@ vec3 shiftColor(vec3 color, float shiftAngle)
     	);
 }
 
+// Animator
+vec2 animateUV(vec2 uv, ivec2 size, float progress)
+{
+        progress = floor(mod(progress, float(size.x * size.y)));
+        vec2 frame_size = vec2(1.0) / vec2(size);
+        vec2 frame = fract(uv) * frame_size;
+        frame.x += (mod(progress, float(size.x))) * frame_size.x;
+        frame.y += float(int(progress) / size.x) * frame_size.y;
+        return frame;
+}
+
 // Vertex Render
 void vertex()
 {
@@ -68,8 +74,8 @@ void vertex()
 			vec4(0.0, 1.0, 0.0, 0.0),
 			vec4(normalize(cross(MAIN_CAM_INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0),
 			MODEL_MATRIX[3]);
-	}	
-	
+	}
+
 	// Full Billboard
 	if (billboard_mode == 2)
 	{
@@ -79,7 +85,7 @@ void vertex()
 			MAIN_CAM_INV_VIEW_MATRIX[2],
 			MODEL_MATRIX[3]);
 	}
-	
+
 	// Keep Size When Billboarding
 	if (billboard_mode != 0 && billboard_keep_scale)
 	{
@@ -97,19 +103,42 @@ void fragment()
 {
 	// Calculate UV
 	vec2 uv = vec2(1.0);
-	if (animate) uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+	vec2 uvNext = vec2(1.0);
+	if (animate) {
+		uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+		uvNext = animateUV(UV, flipbook_dimensions, TIME * animate_speed + (animate_offset + 1.0));
+	}
 	else uv = UV;
-	
+
+	// Sample 6-way Extra Map
+	vec4 tea = texture(six_way_map_TEA, uv);
+	if (animate) {
+		float frameBlend = fract(TIME * animate_speed + animate_offset);
+		vec4 teaNext = texture(six_way_map_TEA, uvNext);
+		tea = mix(tea, teaNext, frameBlend);
+	}
+
 	// Calculate Pixel Rendering
-	vec3 ao = mix(vec3(1.0), texture(six_way_map_TEA, uv).bbb, ao_power);
+	vec3 ao = mix(vec3(1.0), tea.bbb, ao_power);
 	ALBEDO = absorption * ao;
-	ALPHA = texture(six_way_map_TEA, uv).r * density;
+	ALPHA = tea.r * density;
 	vec3 normal_map_sample = texture(normal_map, uv).rgb * 2.0 - 1.0;
 	vec3 normals = TANGENT * normal_map_sample.x + BINORMAL * normal_map_sample.y + NORMAL * normal_map_sample.z;
 	NORMAL_MAP = mix(vec3(.5,.5,1.0), normals, normal_power);
-	
+
+	// Depth Fade Logic
+	vec2 screen_uv = SCREEN_UV;
+	vec4 screen_pos = FRAGCOORD;
+	float scene_depth = textureLod(SCREEN_TEXTURE, screen_uv, 0.0).r;
+	float current_depth = screen_pos.z;
+	float depth_diff = scene_depth - current_depth;
+
+	// Remap Depth Fade
+	float fade = clamp(depth_diff / depth_fade_distance, 0.0, 1.0);
+	ALPHA *= mix(1.0, fade, depth_fade_strength);
+
 	// Create Emission
-	float emission_strength = texture(six_way_map_TEA, uv).g;
+	float emission_strength = tea.g;
 	vec3 emission_color = texture(emission_ramp, vec2(emission_strength, 0.0)).rgb * emission_strength * emission_power;
 	EMISSION = shiftColor(emission_color, emission_color_shift);
 }
@@ -119,13 +148,17 @@ void light()
 {
 	// Calculate UV
 	vec2 uv = vec2(1.0);
-	if (animate) uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+	vec2 uvNext = vec2(1.0);
+	if (animate) {
+		uv = animateUV(UV, flipbook_dimensions, TIME * animate_speed + animate_offset);
+		uvNext = animateUV(UV, flipbook_dimensions, TIME * animate_speed + (animate_offset + 1.0));
+	}
 	else uv = UV;
-	
+
 	// Get Light Direction
 	vec3 light_dir = normalize(LIGHT);
 	vec3 normal_dir = normalize(NORMAL);
-	
+
 	// Light-Direction Based Weights
 	float weightXPos = max(light_dir.x, 0.0);
 	float weightXNeg = max(-light_dir.x, 0.0);
@@ -148,27 +181,34 @@ void light()
 	// Sample 6-way Lightmap
 	vec4 rtb = texture(six_way_map_RTB, uv);
 	vec4 lbf = texture(six_way_map_LBF, uv);
-	
+	if (animate) {
+		float frameBlend = fract(TIME * animate_speed + animate_offset);
+		vec4 rtbNext = texture(six_way_map_RTB, uvNext);
+		rtb = mix(rtb, rtbNext, frameBlend);
+		vec4 lbfNext = texture(six_way_map_LBF, uvNext);
+		lbf = mix(lbf, lbfNext, frameBlend);
+	}
+
 	// Directional Lighting Result
 	vec3 directional_color = weightXPos * vec3(rtb.r) + weightXNeg * vec3(lbf.r) +
 	weightYPos * vec3(rtb.g) + weightYNeg * vec3(rtb.a) +
 	weightZPos * vec3(lbf.b) + weightZNeg * vec3(rtb.b);
-	
+
 	// Normal Influence on Light
 	float normal_strength = max(dot(normal_dir, light_dir), 0.0);
-	
+
 	// Interpolate: Pure Directional vs. Directional * Normal-Facing
 	vec3 blended_color = mix(directional_color, directional_color * normal_strength, normal_blend);
-	
+
 	// Apply Fake Scattering Effect
 	vec3 final_color = blended_color * (1.0 - (scattering / 5.0)) + (scattering / 5.0) * vec3(1.0, 1.0, 1.0);
-	
+
 	// Compute Absorption/Transmittance using a Simplified Beer's Law
 	vec3 transmittance = exp(-absorption * thickness);
-	
+
 	// Modulate Light by Transmittance
 	final_color = final_color * transmittance;
-	
+
 	// Final Result
 	DIFFUSE_LIGHT += (final_color * LIGHT_COLOR * ATTENUATION / 4.4);
 }
